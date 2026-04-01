@@ -1,0 +1,7 @@
+node_modules
+dist
+data/preferences.sqlite
+data/preferences.sqlite-shm
+data/preferences.sqlite-wal
+data/preferences.json
+data/preferences.json.migrated
