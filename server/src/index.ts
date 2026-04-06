@@ -1,6 +1,13 @@
+import { config as loadEnv } from "dotenv";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import cors from "cors";
 import express from "express";
 import { z } from "zod";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+loadEnv({ path: path.join(__dirname, "..", ".env.local") });
+import { startScheduledGymCalls } from "./scheduledGymCalls.js";
 import {
   deletePreferences,
   getPreferences,
@@ -87,4 +94,5 @@ app.delete("/api/preferences/:residentId", (req, res) => {
 app.listen(port, () => {
   console.log(`Golf sim preferences API listening on http://127.0.0.1:${port}`);
   console.log(`CORS origin: ${corsOrigin}`);
+  startScheduledGymCalls();
 });

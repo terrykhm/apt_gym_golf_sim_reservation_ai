@@ -1,5 +1,7 @@
 node_modules
 dist
+.env
+.env.local
 data/preferences.sqlite
 data/preferences.sqlite-shm
 data/preferences.sqlite-wal

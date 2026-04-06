@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { DAYS_AHEAD, RESIDENTS, SLOT_END_HOUR, SLOT_START_HOUR } from "./constants";
 import { PreferenceSummary } from "./components/PreferenceSummary";
+import { SaveResultDialog } from "./components/SaveResultDialog";
 import { ResidentSelector } from "./components/ResidentSelector";
 import { SlotPriorityList } from "./components/SlotPriorityList";
 import { WeekTimeline } from "./components/WeekTimeline";
@@ -67,6 +68,11 @@ export default function App() {
     mergeLoaded(dates, loadOrderedSlotsByDate(defaultResident))
   );
   const [saveHint, setSaveHint] = useState<string | null>(null);
+  const [saveDialog, setSaveDialog] = useState<{
+    variant: "success" | "partial" | "error";
+    title: string;
+    details: string;
+  } | null>(null);
   const userEditedRef = useRef(false);
 
   const { slotsByDate, slotById } = useMemo(
@@ -202,11 +208,22 @@ export default function App() {
       dates
     );
     saveOrderedSlotsByDate(residentId, orderedByDate);
+
     try {
       await putPreferences(residentId, orderedByDate);
-      setSaveHint("Preferences saved (server + this device).");
+      setSaveDialog({
+        variant: "success",
+        title: "Save successful",
+        details:
+          "Your preferences were saved to this device and the backend. The daily scheduler will use them when placing the gym call.",
+      });
     } catch {
-      setSaveHint("Saved on this device only (server unreachable).");
+      setSaveDialog({
+        variant: "error",
+        title: "Server unreachable",
+        details:
+          "Preferences were saved only in this browser. Start the backend or check your network, then try Save again.",
+      });
     }
     if (import.meta.env.DEV) {
       console.log("[BookingPreferencePayload]", payload);
@@ -215,6 +232,10 @@ export default function App() {
 
   return (
     <div className="pb-safe min-h-dvh">
+      <SaveResultDialog
+        state={saveDialog}
+        onDismiss={() => setSaveDialog(null)}
+      />
       <header className="border-b border-slate-800 bg-slate-950/90 px-4 py-4 backdrop-blur md:px-8">
         <div className="mx-auto max-w-5xl">
           <p className="text-xs font-semibold uppercase tracking-wider text-emerald-500/90">
